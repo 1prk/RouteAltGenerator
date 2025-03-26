@@ -7,6 +7,7 @@ public class Config {
     private String customModel;
     private List<String> encodedValues;
     private String osmFile;
+    private String odPairs;
     private AlternativeParams alternatives;
 
     public String getProfile() {
@@ -24,6 +25,10 @@ public class Config {
         return osmFile;
     }
 
+    public String getOdPairs() {
+        return odPairs;
+    }
+
     public AlternativeParams getAlternatives() {
         return alternatives;
     }
@@ -32,16 +37,20 @@ public class Config {
         this.profile = profile;
     }
 
-    public void setCustom_model(String customModel) {
+    public void setCustomModel(String customModel) {
         this.customModel = customModel;
     }
 
-    public void setEncoded_values(List<String> encodedValues) {
+    public void setEncodedValues(List<String> encodedValues) {
         this.encodedValues = encodedValues;
     }
 
-    public void setOsm_file(String osmFile) {
+    public void setOsmFile(String osmFile) {
         this.osmFile = osmFile;
+    }
+
+    public void setOdPairs(String odPairs) {
+        this.odPairs = odPairs;
     }
 
     public void setAlternatives(AlternativeParams alternatives) {

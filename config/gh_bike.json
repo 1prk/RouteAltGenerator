@@ -3,9 +3,9 @@
   "customModel": "bike.json",
   "encodedValues": ["bike_priority, mtb_rating, hike_rating, bike_access, roundabout, bike_average_speed, smoothness, surface, track_type, road_class, road_access, bike_network"],
   "osmFile": "data/osm_data/leipzig_highway_segmented.osm.pbf",
-  "odPairs": "data/od_pairs/leipzig_od.csv",
+  "odPairs": "data/od_pairs/od_test_data.csv",
   "alternatives": {
-    "maxPaths": 5,
+    "maxPaths": 3,
     "maxShare": 0.7,
     "maxWeight": 1.5,
     "minPlateauFactor": 0.1,

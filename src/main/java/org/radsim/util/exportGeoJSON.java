@@ -4,50 +4,73 @@ import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
 import com.graphhopper.util.PointList;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public class exportGeoJSON {
-    public static String exportGHResponse(GHResponse rsp) {
+
+    public static String exportAllResponses(List<GHResponse> responses, List<String> trajectoryIds) {
         JSONObject featureCollection = new JSONObject();
+        JSONArray features = new JSONArray();
+
         try {
             featureCollection.put("type", "FeatureCollection");
-            JSONArray featureList = new JSONArray();
-            int alternativeIndex = 0;
 
-            for (ResponsePath path : rsp.getAll()) {
-                JSONObject feature = new JSONObject();
-                feature.put("type", "Feature");
+            for (int i = 0; i < responses.size(); i++) {
+                GHResponse response = responses.get(i);
+                String trajectoryId = trajectoryIds.get(i);
 
-                JSONObject geometry = new JSONObject();
-                geometry.put("type", "LineString");
-                JSONArray coordinates = new JSONArray();
-
-                PointList pointList = path.getPoints();
-                for (int i = 0; i < pointList.size(); i++) {
-                    JSONArray coord = new JSONArray();
-                    coord.put(pointList.getLon(i));
-                    coord.put(pointList.getLat(i));
-                    coordinates.put(coord);
+                int alternativeIndex = 0;
+                for (ResponsePath path : response.getAll()) {
+                    JSONObject feature = createFeature(path, trajectoryId, alternativeIndex);
+                    features.put(feature);
+                    alternativeIndex++;
                 }
-                geometry.put("coordinates", coordinates);
-                feature.put("geometry", geometry);
-
-                JSONObject properties = new JSONObject();
-                properties.put("alternative", alternativeIndex);
-                properties.put("distance", path.getDistance());
-                properties.put("time", path.getTime());
-                feature.put("properties", properties);
-
-
-                featureList.put(feature);
-                alternativeIndex++;
             }
-            featureCollection.put("features", featureList);
-        } catch (JSONException e) {
-            System.err.println("Error constructing GeoJSON: " + e.getMessage());
+
+            featureCollection.put("features", features);
+        } catch (Exception e) {
+            System.err.println("Error creating GeoJSON: " + e.getMessage());
         }
-        return featureCollection.toString();
+
+        return featureCollection.toString(2); // Pretty-print with indentation
     }
 
+    private static JSONObject createFeature(ResponsePath path, String trajectoryId, int alternativeIndex) {
+        JSONObject feature = new JSONObject();
+        JSONObject geometry = new JSONObject();
+        JSONObject properties = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+
+        try {
+            // Geometry
+            PointList points = path.getPoints();
+            for (int i = 0; i < points.size(); i++) {
+                JSONArray coord = new JSONArray();
+                coord.put(points.getLon(i)); // GeoJSON expects lon-first!
+                coord.put(points.getLat(i));
+                coordinates.put(coord);
+            }
+
+            geometry.put("type", "LineString");
+            geometry.put("coordinates", coordinates);
+
+            // Properties
+            properties.put("trajectoryId", trajectoryId);
+            properties.put("alternative", alternativeIndex);
+            properties.put("distance", path.getDistance());
+            properties.put("time", path.getTime());
+
+            // Feature
+            feature.put("type", "Feature");
+            feature.put("geometry", geometry);
+            feature.put("properties", properties);
+
+        } catch (Exception e) {
+            System.err.println("Error creating feature: " + e.getMessage());
+        }
+
+        return feature;
+    }
 }
